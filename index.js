@@ -97,9 +97,9 @@ async function main() {
       });
   });
   //delete
-  app.delete("/deleteComments/:id", async (req, res) => {
+  app.delete("/pc/:id", async (req, res) => {
     await MongoUtil.getDB()
-      .collection("comments")
+      .collection("pc")
       .remove({
         _id: ObjectId(req.params.id),
       });
@@ -123,7 +123,9 @@ async function main() {
 
   // GET ALL RESULT WITH CONNECTED
   //
-  app.get("/getpc", async (req, res) => {
+  app.get("/pc", async (req, res) => {
+    //pc remove verbs of url and add noun
+    //Try catch
     let crit = {};
     let result = await MongoUtil.getDB()
       .collection("pc")
@@ -167,7 +169,8 @@ async function main() {
     res.json(result); //send the results back as JSON
   });
 
-  app.post("/addpc", async (req, res) => {
+  app.post("/pc", async (req, res) => {
+    //pc
     const pcCase = req.body.pcCase;
     const ram = req.body.ram;
     const coolingSystem = req.body.coolingSystem;
