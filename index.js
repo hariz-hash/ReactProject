@@ -290,7 +290,7 @@ async function main() {
 main();
 
 // START SERVER
-app.listen(3000, () => {
+app.listen(3008, () => {
   console.log("Server has started");
 });
 app.get("/", function (req, res) {
