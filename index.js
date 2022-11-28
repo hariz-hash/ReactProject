@@ -57,69 +57,69 @@ app.use(cors());
 async function main() {
   await MongoUtil.connect(mongoUrl, "pc_build");
 
-  app.get("/comments/:id", async (req, res) => {
-    await MongoUtil.getDB()
-      .collection("comments")
-      .findOne({ _id: ObjectId(req.params.id) })
-      .then((doc) => {
-        res.status(200).json(doc);
-      })
-      .catch((err) => {
-        res.status(500).json({ error: "Could not find doc" });
-      });
-  });
+  // app.get("/comments/:id", async (req, res) => {
+  //   await MongoUtil.getDB()
+  //     .collection("comments")
+  //     .findOne({ _id: ObjectId(req.params.id) })
+  //     .then((doc) => {
+  //       res.status(200).json(doc);
+  //     })
+  //     .catch((err) => {
+  //       res.status(500).json({ error: "Could not find doc" });
+  //     });
+  // });
 
-  //retriev one document
-  app.get("/comments/:id", async (req, res) => {
-    await MongoUtil.getDB()
-      .collection("comments")
-      .findOne({ _id: ObjectId(req.params.id) })
-      .then((doc) => {
-        res.status(200).json(doc);
-      })
-      .catch((err) => {
-        res.status(500).json({ error: "Could not find doc" });
-      });
-  });
+  // //retriev one document
+  // app.get("/comments/:id", async (req, res) => {
+  //   await MongoUtil.getDB()
+  //     .collection("comments")
+  //     .findOne({ _id: ObjectId(req.params.id) })
+  //     .then((doc) => {
+  //       res.status(200).json(doc);
+  //     })
+  //     .catch((err) => {
+  //       res.status(500).json({ error: "Could not find doc" });
+  //     });
+  // });
 
-  //add data
-  app.post("/comments", async (req, res) => {
-    const comment = req.body;
+  // //add data
+  // app.post("/comments", async (req, res) => {
+  //   const comment = req.body;
 
-    await MongoUtil.getDB()
-      .collection("comments")
-      .insertOne(comment)
-      .then((result) => {
-        res.status(201).json(result);
-      })
-      .catch((err) => {
-        res.status(500).json({ error: "Could not create doc" });
-      });
-  });
-  //delete
-  app.delete("/pc/:id", async (req, res) => {
-    await MongoUtil.getDB()
-      .collection("pc")
-      .remove({
-        _id: ObjectId(req.params.id),
-      });
-    console.log("print");
-    res.status(201);
-    res.json({
-      message: "OK",
-    });
-  });
+  //   await MongoUtil.getDB()
+  //     .collection("comments")
+  //     .insertOne(comment)
+  //     .then((result) => {
+  //       res.status(201).json(result);
+  //     })
+  //     .catch((err) => {
+  //       res.status(500).json({ error: "Could not create doc" });
+  //     });
+  // });
+  // //delete
+  // app.delete("/pc/:id", async (req, res) => {
+  //   await MongoUtil.getDB()
+  //     .collection("pc")
+  //     .remove({
+  //       _id: ObjectId(req.params.id),
+  //     });
+  //   console.log("print");
+  //   res.status(201);
+  //   res.json({
+  //     message: "OK",
+  //   });
+  // });
 
-  app.get("/getcomment", async (req, res) => {
-    let crit = {};
-    let result = await MongoUtil.getDB()
-      .collection("comments")
-      .find(crit)
-      .toArray();
-    console.log(result);
-    res.status(200);
-    res.json(result); //send the results back as JSON
-  });
+  // app.get("/getcomment", async (req, res) => {
+  //   let crit = {};
+  //   let result = await MongoUtil.getDB()
+  //     .collection("comments")
+  //     .find(crit)
+  //     .toArray();
+  //   console.log(result);
+  //   res.status(200);
+  //   res.json(result); //send the results back as JSON
+  // });
 
   // GET ALL RESULT WITH CONNECTED
   //
@@ -168,9 +168,9 @@ async function main() {
     res.status(200);
     res.json(result); //send the results back as JSON
   });
-
+  // ADD ALL DETAILS
   app.post("/pc", async (req, res) => {
-    //pc
+    // const body = req.body;
     const pcCase = req.body.pcCase;
     const ram = req.body.ram;
     const coolingSystem = req.body.coolingSystem;
@@ -178,18 +178,14 @@ async function main() {
     const SSD = req.body.SSD; // change to came
     const operatingSystem = req.body.operatingSystem;
     const photo = req.body.photo;
-    const price = req.body.price;
     const email = req.body.email;
     const cpuDetailsId = ObjectId(req.body.cpuDetailsId);
     const gpuDetailsId = ObjectId(req.body.gpuDetailsId);
     const motherBoardDetailsId = ObjectId(req.body.motherBoardDetailsId);
-    // storing ids from cpu, gpu, motherboard pass into pc refernce ids
-    //
-
-    //create
 
     try {
       let result = await MongoUtil.getDB().collection("pc").insertOne({
+        // body,
         pcCase,
         ram,
         coolingSystem,
@@ -197,7 +193,6 @@ async function main() {
         SSD,
         operatingSystem,
         photo,
-        price,
         email,
         cpuDetailsId,
         gpuDetailsId,
@@ -223,6 +218,73 @@ async function main() {
   //     message: "OK",
   //   });
   // });
+  app.get("/pc", async (req, res) => {
+    let crit = {};
+    let result = await MongoUtil.getDB()
+      .collection("pc")
+      .aggregate([
+        {
+          $lookup: {
+            from: "cpu",
+            localField: "cpuDetailsId",
+            foreignField: "_id",
+            as: "cpuDetailsId",
+          },
+        },
+        {
+          $lookup: {
+            from: "gpu",
+            localField: "gpuDetailsId",
+            foreignField: "_id",
+            as: "gpuDetailsId",
+          },
+        },
+        {
+          $lookup: {
+            from: "motherboard",
+            localField: "motherBoardDetailsId",
+            foreignField: "_id",
+            as: "motherBoardDetailsId",
+          },
+        },
+        // {
+        //   $lookup: {
+        //     from: "comments",
+        //     localField: "messageDetails",
+        //     foreignField: "_id",
+        //     as: "messageDetailsId",
+        //   },
+        // },
+      ])
+      .toArray();
+    console.log(result);
+    res.status(200);
+    res.json(result); //send the results back as JSON
+  });
+
+  // search by gpu, cpu, motherboard
+  app.get("/search", async (req, res) => {
+    let result = await MongoUtil.getDB()
+      .collection("pc")
+      .aggregate([
+        //
+
+        {
+          $lookup: {
+            from: "cpu",
+            localField: "cpuDetailsId",
+            foreignField: "_id",
+            as: "CPU",
+          },
+        },
+        { $match: { CPU: { $project: {} } } },
+      ])
+      .toArray();
+    console.log(result);
+    console.log(result);
+    res.status(200);
+    res.json(result); //send the results back as JSON
+  });
 }
 
 main();
