@@ -121,6 +121,28 @@ async function main() {
   //   res.json(result); //send the results back as JSON
   // });
 
+  app.get("/cpu", async (req, res) => {
+    let crit = {};
+    let result = await MongoUtil.getDB().collection("cpu").find(crit).toArray();
+    console.log(result);
+    res.status(200);
+    res.json(result); //send the results back as JSON
+  });
+  app.get("/gpu", async (req, res) => {
+    let crit = {};
+    let result = await MongoUtil.getDB().collection("cpu").find(crit).toArray();
+    console.log(result);
+    res.status(200);
+    res.json(result); //send the results back as JSON
+  });
+  app.get("/motherBoard", async (req, res) => {
+    let crit = {};
+    let result = await MongoUtil.getDB().collection("cpu").find(crit).toArray();
+    console.log(result);
+    res.status(200);
+    res.json(result); //send the results back as JSON
+  });
+
   // GET ALL RESULT WITH CONNECTED
   //
   app.get("/pc", async (req, res) => {
@@ -154,14 +176,6 @@ async function main() {
             as: "motherBoardDetailsId",
           },
         },
-        // {
-        //   $lookup: {
-        //     from: "comments",
-        //     localField: "messageDetails",
-        //     foreignField: "_id",
-        //     as: "messageDetailsId",
-        //   },
-        // },
       ])
       .toArray();
     console.log(result);
