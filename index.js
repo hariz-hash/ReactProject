@@ -55,7 +55,7 @@ app.use(cors());
 
 // SETUP END
 async function main() {
-  await MongoUtil.connect(mongoUrl, "pc_build");
+  await MongoUtil.connect(mongoUrl, "pc_");
 
   // app.get("/comments/:id", async (req, res) => {
   //   await MongoUtil.getDB()
@@ -130,14 +130,17 @@ async function main() {
   });
   app.get("/gpu", async (req, res) => {
     let crit = {};
-    let result = await MongoUtil.getDB().collection("cpu").find(crit).toArray();
+    let result = await MongoUtil.getDB().collection("gpu").find(crit).toArray();
     console.log(result);
     res.status(200);
     res.json(result); //send the results back as JSON
   });
   app.get("/motherBoard", async (req, res) => {
     let crit = {};
-    let result = await MongoUtil.getDB().collection("cpu").find(crit).toArray();
+    let result = await MongoUtil.getDB()
+      .collection("motherboard")
+      .find(crit)
+      .toArray();
     console.log(result);
     res.status(200);
     res.json(result); //send the results back as JSON
@@ -232,10 +235,14 @@ async function main() {
   //     message: "OK",
   //   });
   // });
+
+  // app.get("/pc/_id")
+  //index  getting id
+
   app.get("/pc", async (req, res) => {
     let crit = {};
     let result = await MongoUtil.getDB()
-      .collection("pc")
+      .collection("pc_")
       .aggregate([
         {
           $lookup: {
