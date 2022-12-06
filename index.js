@@ -57,6 +57,13 @@ app.use(cors());
 async function main() {
   await MongoUtil.connect(mongoUrl, "pc_");
 
+  // app.get("/user", async (req, res) => {
+  //   let crit = { email: "dex@gmail.com" };
+  //   let result = await MongoUtil.getDB().collection("pc").find(crit).toArray();
+  //   console.log(result);
+  //   res.status(200);
+  //   res.json(result); //send the results back as JSON
+  // });
   // app.get("/comments/:id", async (req, res) => {
   //   await MongoUtil.getDB()
   //     .collection("comments")
@@ -97,18 +104,18 @@ async function main() {
   //     });
   // });
   // //delete
-  // app.delete("/pc/:id", async (req, res) => {
-  //   await MongoUtil.getDB()
-  //     .collection("pc")
-  //     .remove({
-  //       _id: ObjectId(req.params.id),
-  //     });
-  //   console.log("print");
-  //   res.status(201);
-  //   res.json({
-  //     message: "OK",
-  //   });
-  // });
+  app.delete("/pc/:id", async (req, res) => {
+    await MongoUtil.getDB()
+      .collection("pc")
+      .remove({
+        _id: ObjectId(req.params.id),
+      });
+    console.log("print");
+    res.status(201);
+    res.json({
+      message: "OK",
+    });
+  });
 
   // app.get("/getcomment", async (req, res) => {
   //   let crit = {};
@@ -185,6 +192,51 @@ async function main() {
     res.status(200);
     res.json(result); //send the results back as JSON
   });
+  app.get("/user/:email", async (req, res) => {
+    //pc remove verbs of url and add noun
+    //Try catch
+    var email = req.params.email;
+
+    let crit = {};
+    let result = await MongoUtil.getDB()
+      .collection("pc")
+      .aggregate([
+        {
+          $match: {
+            email: email,
+          },
+        },
+        {
+          $lookup: {
+            from: "cpu",
+            localField: "cpuDetailsId",
+            foreignField: "_id",
+            as: "cpuDetailsId",
+          },
+        },
+        {
+          $lookup: {
+            from: "gpu",
+            localField: "gpuDetailsId",
+            foreignField: "_id",
+            as: "gpuDetailsId",
+          },
+        },
+        {
+          $lookup: {
+            from: "motherboard",
+            localField: "motherBoardDetailsId",
+            foreignField: "_id",
+            as: "motherBoardDetailsId",
+          },
+        },
+      ])
+      .toArray();
+    console.log(result);
+    res.status(200);
+    res.json(result); //send the results back as JSON
+  });
+
   // ADD ALL DETAILS
   app.post("/pc", async (req, res) => {
     // const body = req.body;
@@ -194,11 +246,10 @@ async function main() {
     const thermalCompund = req.body.thermalCompund;
     const SSD = req.body.SSD; // change to came
     const operatingSystem = req.body.operatingSystem;
-    const photo = req.body.photo;
     const email = req.body.email;
-    const cpuDetailsId = ObjectId(req.body.cpuDetailsId);
-    const gpuDetailsId = ObjectId(req.body.gpuDetailsId);
-    const motherBoardDetailsId = ObjectId(req.body.motherBoardDetailsId);
+    // const cpuDetailsId = ObjectId(req.body.cpuDetailsId);
+    // const gpuDetailsId = ObjectId(req.body.gpuDetailsId);
+    // const motherBoardDetailsId = ObjectId(req.body.motherBoardDetailsId);
 
     try {
       let result = await MongoUtil.getDB().collection("pc").insertOne({
@@ -209,11 +260,7 @@ async function main() {
         thermalCompund,
         SSD,
         operatingSystem,
-        photo,
         email,
-        cpuDetailsId,
-        gpuDetailsId,
-        motherBoardDetailsId,
       });
       res.status(200);
       res.send("success");
@@ -239,73 +286,73 @@ async function main() {
   // app.get("/pc/_id")
   //index  getting id
 
-  app.get("/pc", async (req, res) => {
-    let crit = {};
-    let result = await MongoUtil.getDB()
-      .collection("pc_")
-      .aggregate([
-        {
-          $lookup: {
-            from: "cpu",
-            localField: "cpuDetailsId",
-            foreignField: "_id",
-            as: "cpuDetailsId",
-          },
-        },
-        {
-          $lookup: {
-            from: "gpu",
-            localField: "gpuDetailsId",
-            foreignField: "_id",
-            as: "gpuDetailsId",
-          },
-        },
-        {
-          $lookup: {
-            from: "motherboard",
-            localField: "motherBoardDetailsId",
-            foreignField: "_id",
-            as: "motherBoardDetailsId",
-          },
-        },
-        // {
-        //   $lookup: {
-        //     from: "comments",
-        //     localField: "messageDetails",
-        //     foreignField: "_id",
-        //     as: "messageDetailsId",
-        //   },
-        // },
-      ])
-      .toArray();
-    console.log(result);
-    res.status(200);
-    res.json(result); //send the results back as JSON
-  });
+  // app.get("/pc", async (req, res) => {
+  //   let crit = {};
+  //   let result = await MongoUtil.getDB()
+  //     .collection("pc_")
+  //     .aggregate([
+  //       {
+  //         $lookup: {
+  //           from: "cpu",
+  //           localField: "cpuDetailsId",
+  //           foreignField: "_id",
+  //           as: "cpuDetailsId",
+  //         },
+  //       },
+  //       {
+  //         $lookup: {
+  //           from: "gpu",
+  //           localField: "gpuDetailsId",
+  //           foreignField: "_id",
+  //           as: "gpuDetailsId",
+  //         },
+  //       },
+  //       {
+  //         $lookup: {
+  //           from: "motherboard",
+  //           localField: "motherBoardDetailsId",
+  //           foreignField: "_id",
+  //           as: "motherBoardDetailsId",
+  //         },
+  //       },
+  //       // {
+  //       //   $lookup: {
+  //       //     from: "comments",
+  //       //     localField: "messageDetails",
+  //       //     foreignField: "_id",
+  //       //     as: "messageDetailsId",
+  //       //   },
+  //       // },
+  //     ])
+  //     .toArray();
+  //   console.log(result);
+  //   res.status(200);
+  //   res.json(result); //send the results back as JSON
+  // });
 
   // search by gpu, cpu, motherboard
-  app.get("/search", async (req, res) => {
-    let result = await MongoUtil.getDB()
-      .collection("pc")
-      .aggregate([
-        //
+  // app.get("/search", async (req, res) => {
+  //   let result = await MongoUtil.getDB()
+  //     .collection("pc")
+  //     .aggregate([
+  //       //
 
-        {
-          $lookup: {
-            from: "cpu",
-            localField: "cpuDetailsId",
-            foreignField: "_id",
-            as: "CPU",
-          },
-        },
-        { $match: { CPU: { $project: {} } } },
-      ])
-      .toArray();
-    console.log(result);
-    console.log(result);
-    res.status(200);
-    res.json(result); //send the results back as JSON
-  });
+  //       {
+  //         $lookup: {
+  //           from: "cpu",
+  //           localField: "cpuDetailsId",
+  //           foreignField: "_id",
+  //           as: "CPU",
+  //         },
+  //       },
+  //       { $match: { CPU: { $project: {} } } },
+  //     ])
+  //     .toArray();
+  //   console.log(result);
+  //   console.log(result);
+  //   res.status(200);
+  //   res.json(result); //send the results back as JSON
+  // });
 }
 
 main();
