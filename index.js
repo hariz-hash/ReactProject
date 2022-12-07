@@ -237,6 +237,51 @@ async function main() {
     res.json(result); //send the results back as JSON
   });
 
+  app.get("/pc/:id", async (req, res) => {
+    //pc remove verbs of url and add noun
+    //Try catch
+    let id = ObjectId(req.params.id);
+
+    let crit = {};
+    let result = await MongoUtil.getDB()
+      .collection("pc")
+      .aggregate([
+        {
+          $match: {
+            _id: id,
+          },
+        },
+        {
+          $lookup: {
+            from: "cpu",
+            localField: "cpuDetailsId",
+            foreignField: "_id",
+            as: "cpuDetailsId",
+          },
+        },
+        {
+          $lookup: {
+            from: "gpu",
+            localField: "gpuDetailsId",
+            foreignField: "_id",
+            as: "gpuDetailsId",
+          },
+        },
+        {
+          $lookup: {
+            from: "motherboard",
+            localField: "motherBoardDetailsId",
+            foreignField: "_id",
+            as: "motherBoardDetailsId",
+          },
+        },
+      ])
+      .toArray();
+    console.log(result);
+    res.status(200);
+    res.json(result); //send the results back as JSON
+  });
+
   // ADD ALL DETAILS
   app.post("/pc", async (req, res) => {
     // const body = req.body;
@@ -247,9 +292,9 @@ async function main() {
     const SSD = req.body.SSD; // change to came
     const operatingSystem = req.body.operatingSystem;
     const email = req.body.email;
-    // const cpuDetailsId = ObjectId(req.body.cpuDetailsId);
-    // const gpuDetailsId = ObjectId(req.body.gpuDetailsId);
-    // const motherBoardDetailsId = ObjectId(req.body.motherBoardDetailsId);
+    const cpuDetailsId = ObjectId(req.body.cpuDetailsId);
+    const gpuDetailsId = ObjectId(req.body.gpuDetailsId);
+    const motherBoardDetailsId = ObjectId(req.body.motherBoardDetailsId);
 
     try {
       let result = await MongoUtil.getDB().collection("pc").insertOne({
@@ -261,6 +306,9 @@ async function main() {
         SSD,
         operatingSystem,
         email,
+        cpuDetailsId,
+        gpuDetailsId,
+        motherBoardDetailsId,
       });
       res.status(200);
       res.send("success");
