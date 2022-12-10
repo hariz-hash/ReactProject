@@ -1,41 +1,3 @@
-// const express = require("express");
-// const cors = require("cors");
-// require("dotenv").config();
-// const ObjectId = require("mongodb").ObjectId;
-// const MongoUtil = require("./MongoUtill");
-
-// const mongoUrl = process.env.MONGO_URI;
-
-// let app = express();
-
-// // !! Enable processing JSON data
-// app.use(express.json());
-
-// // !! Enable CORS
-// app.use(cors());
-
-// async function main() {
-//   //   let db = await MongoUtil.connect(mongoUrl, "pc_build");
-//   //   console.log("connecteds");
-//   //   app.post("/addcomments", async function (req, res) {
-//   //     const comments = req.body;
-//   //     db.collection("comments")
-//   //       .insertOne(comments)
-//   //       .then((result) => {
-//   //         res.status(201).json(result);
-//   //       })
-//   //       .catch((err) => {
-//   //         res.status(500).json({ err: "could not create new doc" });
-//   //       });
-//   //   });
-// }
-// main();
-
-// // START SERVER
-// app.listen(3000, () => {
-//   console.log("Server has started");
-// });
-
 // SETUP BEGINS
 const express = require("express");
 const cors = require("cors");
@@ -131,14 +93,14 @@ async function main() {
   app.get("/cpu", async (req, res) => {
     let crit = {};
     let result = await MongoUtil.getDB().collection("cpu").find(crit).toArray();
-    console.log(result);
+    // console.log(result);
     res.status(200);
     res.json(result); //send the results back as JSON
   });
   app.get("/gpu", async (req, res) => {
     let crit = {};
     let result = await MongoUtil.getDB().collection("gpu").find(crit).toArray();
-    console.log(result);
+    // console.log(result);
     res.status(200);
     res.json(result); //send the results back as JSON
   });
@@ -148,13 +110,13 @@ async function main() {
       .collection("motherboard")
       .find(crit)
       .toArray();
-    console.log(result);
+    // console.log(result);
     res.status(200);
     res.json(result); //send the results back as JSON
   });
 
   // GET ALL RESULT WITH CONNECTED
-  //
+
   app.get("/pc", async (req, res) => {
     //pc remove verbs of url and add noun
     //Try catch
@@ -188,7 +150,7 @@ async function main() {
         },
       ])
       .toArray();
-    console.log(result);
+    // console.log(result);
     res.status(200);
     res.json(result); //send the results back as JSON
   });
@@ -232,7 +194,7 @@ async function main() {
         },
       ])
       .toArray();
-    console.log(result);
+    // console.log(result);
     res.status(200);
     res.json(result); //send the results back as JSON
   });
@@ -277,7 +239,7 @@ async function main() {
         },
       ])
       .toArray();
-    console.log(result);
+    // console.log(result);
     res.status(200);
     res.json(result); //send the results back as JSON
   });
@@ -292,13 +254,16 @@ async function main() {
     const SSD = req.body.SSD; // change to came
     const operatingSystem = req.body.operatingSystem;
     const email = req.body.email;
-    const cpuDetailsId = ObjectId(req.body.cpuDetailsId);
-    const gpuDetailsId = ObjectId(req.body.gpuDetailsId);
-    const motherBoardDetailsId = ObjectId(req.body.motherBoardDetailsId);
+    const cpuDetailsId = ObjectId(req.body.cpuDetailsIdedit);
+    console.log(req.body.cpuDetailsIdedit);
+    const gpuDetailsId = ObjectId(req.body.gpuDetailsIdedit);
+    console.log(req.body.gpuDetailsIdedit);
+
+    const motherBoardDetailsId = ObjectId(req.body.motherBoardId);
+    console.log(motherBoardDetailsId);
 
     try {
       let result = await MongoUtil.getDB().collection("pc").insertOne({
-        // body,
         pcCase,
         ram,
         coolingSystem,
@@ -318,13 +283,28 @@ async function main() {
     }
   });
   //
-  // app.put("/updateComments/:id", async (req, res) => {
-
-  //   const update = req.body;
-
+  // app.put("/pc/:id", async (req, res) => {
+  //   let {
+  //     pcCase,
+  //     ram,
+  //     coolingSystem,
+  //     thermalCompund,
+  //     SSD,
+  //     operatingSystem,
+  //     email,
+  //   } = req.body;
+  //   let updatePc = {
+  //     pcCase: pcCase,
+  //     ram: ram,
+  //     coolingSystem: coolingSystem,
+  //     thermalCompund: thermalCompund,
+  //     SSD: SSD,
+  //     operatingSystem: operatingSystem,
+  //     email: email,
+  //   };
   //   await MongoUtil.getDB()
-  //     .collection("comments")
-  //     .updateOne({ _id: ObjectId(req.params.id) }, { $set: update });
+  //     .collection("pc")
+  //     .updateOne({ _id: ObjectId(req.params.id) }, { $set: updatePc });
   //   res.status(200);
   //   res.send({
   //     message: "OK",
@@ -401,6 +381,43 @@ async function main() {
   //   res.status(200);
   //   res.json(result); //send the results back as JSON
   // });
+  app.put("/edit/:id", async (req, res) => {
+    try {
+      let {
+        pcCase,
+        ram,
+        coolingSystem,
+        thermalCompund,
+        SSD,
+        operatingSystem,
+        cpuDetailsId,
+        gpuDetailsId,
+        motherBoardDetailsId,
+      } = req.body;
+      let updatePc = {
+        pcCase: pcCase,
+        ram: ram,
+        coolingSystem: coolingSystem,
+        thermalCompund: thermalCompund,
+        SSD: SSD,
+        operatingSystem: operatingSystem,
+        cpuDetailsId: ObjectId(cpuDetailsId),
+        gpuDetailsId: ObjectId(gpuDetailsId),
+        motherBoardDetailsId: ObjectId(motherBoardDetailsId),
+      };
+      const result = await MongoUtil.getDB()
+        .collection("pc")
+        .updateOne({ _id: ObjectId(req.params.id) }, { $set: updatePc });
+      res.status(200, result);
+      res.json({
+        message: "Update success",
+      });
+    } catch (e) {
+      res.status(500);
+      res.send(e);
+      console.log(e);
+    }
+  });
 }
 
 main();
