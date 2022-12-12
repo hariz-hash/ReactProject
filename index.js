@@ -419,7 +419,71 @@ async function main() {
     }
   });
 }
+//search
 
+app.get("/category", async (req, res) => {
+  console.log(req.query);
+
+  try {
+    let search = {};
+    if (req.query.pc) {
+      search["pcCase"] = {
+        $regex: req.query.pc,
+        $options: "i",
+      };
+    }
+    // if (req.query.cpu) {
+    //   search["cpuDetailsId[0].model"] = {
+    //     $regex: req.query.cpu,
+    //     $options: "i",
+    //   };
+    // }
+    // if (req.query.motherBoard) {
+    //   search["motherBoard"] = {
+    //     $regex: req.query.motherBoard,
+    //     $options: "i",
+    //   };
+    // }
+    let result = await MongoUtil.getDB()
+      .collection("pc")
+      .aggregate([
+        {
+          $match: search,
+        },
+        {
+          $lookup: {
+            from: "cpu",
+            localField: "cpuDetailsId",
+            foreignField: "_id",
+            as: "cpuDetailsId",
+          },
+        },
+        {
+          $lookup: {
+            from: "gpu",
+            localField: "gpuDetailsId",
+            foreignField: "_id",
+            as: "gpuDetailsId",
+          },
+        },
+        {
+          $lookup: {
+            from: "motherboard",
+            localField: "motherBoardDetailsId",
+            foreignField: "_id",
+            as: "motherBoardDetailsId",
+          },
+        },
+      ])
+      .toArray();
+    res.status(200, result);
+    res.json(result);
+  } catch (e) {
+    res.status(500);
+    res.send(e);
+    console.log(e);
+  }
+});
 main();
 
 // START SERVER
