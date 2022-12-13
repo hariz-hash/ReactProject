@@ -473,18 +473,18 @@ app.get("/category", async (req, res) => {
         $options: "i",
       };
     }
-    if (req.query.cpu) {
-      search["cpuDetailsId[0].model"] = {
-        $regex: req.query.cpu,
-        $options: "i",
-      };
-    }
-    if (req.query.motherBoard) {
-      search["motherBoard"] = {
-        $regex: req.query.motherBoard,
-        $options: "i",
-      };
-    }
+    // if (req.query.cpu) {
+    //   search["cpuDetailsId[0].model"] = {
+    //     $regex: req.query.cpu,
+    //     $options: "i",
+    //   };
+    // }
+    // if (req.query.motherBoard) {
+    //   search["motherBoard"] = {
+    //     $regex: req.query.motherBoard,
+    //     $options: "i",
+    //   };
+    // }
     let result = await MongoUtil.getDB()
       .collection("pc")
       .aggregate([
@@ -519,6 +519,7 @@ app.get("/category", async (req, res) => {
       .toArray();
     res.status(200, result);
     res.json(result);
+    console.log(result);
   } catch (e) {
     res.status(500);
     res.send(e);
