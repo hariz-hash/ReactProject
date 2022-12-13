@@ -5,7 +5,7 @@ require("dotenv").config();
 const { ObjectId } = require("mongodb");
 const MongoUtil = require("./MongoUtil");
 
-const mongoUrl = process.env.MONGO_URL;
+const mongoUrl = process.env.MONGO_URI;
 
 let app = express();
 
