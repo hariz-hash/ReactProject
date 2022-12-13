@@ -487,7 +487,7 @@ app.get("/category", async (req, res) => {
 main();
 
 // START SERVER
-app.listen(3008, () => {
+app.listen(process.env.PORT || 3000, function () {
   console.log("Server has started");
 });
 app.get("/", function (req, res) {
